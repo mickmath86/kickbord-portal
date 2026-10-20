@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { ArrowLeftIcon } from "lucide-react"
+import { answerSections, getOnboardingRecord } from "@/lib/onboarding/record"
 
 export const instant = false
 
@@ -46,6 +47,9 @@ export default async function ClientDetailPage({
     .single()
 
   if (!client) notFound()
+  const onboarding = await getOnboardingRecord(client.id)
+  const fmt = (d: string | null) =>
+    d ? new Date(d).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Los_Angeles" }) : null
 
   const name =
     client.business_name ||
@@ -108,6 +112,48 @@ export default async function ClientDetailPage({
             </form>
           </div>
         </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="text-lg">Onboarding answers</CardTitle>
+              <CardDescription>
+                {onboarding
+                  ? `Started ${fmt(onboarding.created_at)} · last saved ${fmt(onboarding.updated_at)}`
+                  : "This client has not started the onboarding questionnaire in the portal yet."}
+              </CardDescription>
+            </div>
+            {onboarding && (
+              <Badge variant={onboarding.status === "completed" ? "default" : "secondary"}>
+                {onboarding.status === "completed"
+                  ? "Completed"
+                  : `In progress${onboarding.progress_step_number ? ` · step ${onboarding.progress_step_number} of ${onboarding.progress_step_count ?? "?"}` : ""}`}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        {onboarding && (
+          <CardContent>
+            <Row label="Submitted" value={fmt(onboarding.completed_at)} />
+            <Row label="CRM login created" value={onboarding.login_created_at ? `${onboarding.login_email ?? ""} · ${fmt(onboarding.login_created_at)}` : null} />
+            <Row label="Account setup finished" value={fmt(onboarding.setup_completed_at)} />
+            <Row label="EIN on file" value={onboarding.ein_last4 ? `ending in ${onboarding.ein_last4}` : null} />
+            {answerSections(onboarding.answers ?? {}).map((section) => (
+              <div key={section.id} className="mt-5">
+                <Separator className="mb-3" />
+                <p className="mb-1 text-sm font-semibold">{section.title}</p>
+                {section.rows.map((r) => (
+                  <div key={r.label} className="flex justify-between gap-6 py-1.5 text-sm">
+                    <span className="text-muted-foreground shrink-0">{r.label}</span>
+                    <span className="text-right font-medium whitespace-pre-line break-words">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </CardContent>
+        )}
       </Card>
       </div>
     </AppShell>

@@ -192,12 +192,10 @@ export default async function CrmSetupGuidePage({ searchParams }: { searchParams
           </div>
         </div>
 
-        {/* In the portal the record can also be found from the signed-in account (location + email). */}
-        {(resumeToken || (locationId && email)) && (
+        {/* In the portal the record is found from the signed-in account; the card hides itself if there is none. */}
           <div className="mb-5">
             <CreateLoginCard appUrl={dashboardUrl} />
           </div>
-        )}
         <ol className="space-y-5">
           {steps.map((step, index) => (
             <li
