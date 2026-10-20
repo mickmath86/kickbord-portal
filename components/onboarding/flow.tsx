@@ -62,10 +62,11 @@ export function OnboardingFlow({ demoUrl: demoParam, prefill, meta, tokenParam, 
     let cancelled = false
     ;(async () => {
       let stored = tokenParam || (typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null)
-      // No saved link on this device: find their record by sub-account and email from the link (resume on any device).
-      if (!tokenParam && meta.location && meta.email) {
+      // No resume link: find their record. In the portal the server matches the signed-in client first
+      // (client_id), then the sub-account and email. This always wins over a token saved on this device.
+      if (!tokenParam) {
         try {
-          const found = await findSubmission(meta.location, meta.email)
+          const found = await findSubmission(meta.location ?? '', meta.email ?? '')
           stored = found.token
         } catch { /* not started yet */ }
       }

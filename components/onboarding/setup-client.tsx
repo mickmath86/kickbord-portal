@@ -47,7 +47,8 @@ export function SetupProvider({ token: tokenProp, location, email, services, chi
     ;(async () => {
       try {
         let t = tokenProp
-        if (!t && location && email) t = (await findSubmission(location, email)).token
+        // Portal: the server finds the signed-in client's record (client_id) even without location or email.
+        if (!t) t = await findSubmission(location ?? '', email ?? '').then((r) => r.token, () => null)
         if (!t) { setLogin((l) => ({ ...l, ready: true })); return }
         const saved = await loadSubmission(t)
         if (cancelled) return

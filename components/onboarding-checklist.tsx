@@ -39,13 +39,15 @@ const statusConfig: Record<
   },
 }
 
+const QUESTIONNAIRE_LABEL = "Complete your onboarding questionnaire"
+
 const sections = [
   {
     id: "onboarding",
     title: "Onboarding",
     status: "up-next" as SectionStatus,
     tasks: [
-      { label: "Complete your onboarding questionnaire", link: "onboarding" },
+      { label: QUESTIONNAIRE_LABEL, link: "onboarding" },
       { label: "Invite your team members" },
       { label: "Connect your Google Business Profile" },
       { label: "Review your notification preferences" },
@@ -86,12 +88,20 @@ const sections = [
   },
 ]
 
+const QUESTIONNAIRE = QUESTIONNAIRE_LABEL
+
 export function OnboardingChecklist({
   locationId,
+  onboardingStatus = "not_started",
 }: {
   locationId?: string | null
+  /** From the client's linked onboarding record (client_onboardings.client_id). */
+  onboardingStatus?: "not_started" | "in_progress" | "completed"
 }) {
-  const [checkedTasks, setCheckedTasks] = useState<Record<string, boolean>>({})
+  const questionnaireDone = onboardingStatus === "completed"
+  const [checkedTasks, setCheckedTasks] = useState<Record<string, boolean>>(
+    questionnaireDone ? { [`onboarding:${QUESTIONNAIRE}`]: true } : {}
+  )
 
   // Opens the onboarding questionnaire inside the portal. The page also reads the signed-in
   // client's account, so the location here is a fallback for older accounts.
@@ -117,7 +127,7 @@ export function OnboardingChecklist({
       <Accordion defaultValue={["onboarding"]} multiple className="gap-3">
         {sections.map((section) => {
           const completed = section.tasks.filter(
-            (task) => checkedTasks[`${section.id}:${task}`]
+            (task) => checkedTasks[`${section.id}:${task.label}`]
           ).length
           const status: SectionStatus =
             completed === section.tasks.length ? "done" : section.status
@@ -147,7 +157,13 @@ export function OnboardingChecklist({
                     <li key={task.label} className="flex items-center gap-3">
                       <Checkbox
                         id={`${section.id}-${task.label}`}
-                        checked={!!checkedTasks[`${section.id}:${task.label}`]}
+                        checked={
+                          task.link === "onboarding"
+                            ? questionnaireDone
+                            : !!checkedTasks[`${section.id}:${task.label}`]
+                        }
+                        // The questionnaire box follows the saved onboarding record, not a click.
+                        disabled={task.link === "onboarding"}
                         onCheckedChange={(checked) =>
                           toggleTask(section.id, task.label, checked === true)
                         }
@@ -165,6 +181,11 @@ export function OnboardingChecklist({
                           </Link>
                         ) : (
                           task.label
+                        )}
+                        {task.link === "onboarding" && onboardingStatus !== "not_started" && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {questionnaireDone ? "Completed" : "In progress"}
+                          </span>
                         )}
                       </Label>
                     </li>
