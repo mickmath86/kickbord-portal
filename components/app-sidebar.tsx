@@ -124,14 +124,6 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Admin",
-      url: "/admin",
-      icon: (
-        <ShieldIcon
-        />
-      ),
-    },
-    {
       title: "Settings",
       url: "#",
       icon: (
@@ -183,7 +175,21 @@ const data = {
     },
   ],
 }
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  isAdmin,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { isAdmin?: boolean }) {
+  const navSecondary = isAdmin
+    ? [
+        {
+          title: "Admin",
+          url: "/admin",
+          icon: <ShieldIcon />,
+        },
+        ...data.navSecondary,
+      ]
+    : data.navSecondary
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -202,7 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

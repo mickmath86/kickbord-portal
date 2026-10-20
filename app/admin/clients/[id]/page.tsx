@@ -5,6 +5,7 @@ import { getCurrentAccount } from "@/lib/account"
 import { viewAsClient, resendInvite } from "@/app/admin/actions"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { AppShell } from "@/components/app-shell"
 import {
   Card,
   CardContent,
@@ -52,7 +53,8 @@ export default async function ClientDetailPage({
     client.email
 
   return (
-    <div className="mx-auto w-full max-w-2xl p-6">
+    <AppShell>
+      <div className="mx-auto w-full max-w-2xl px-4 lg:px-6">
       <Link
         href="/dashboard"
         className="text-muted-foreground mb-4 inline-flex items-center gap-1 text-sm hover:underline"
@@ -107,6 +109,7 @@ export default async function ClientDetailPage({
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </AppShell>
   )
 }

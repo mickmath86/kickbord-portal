@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { AddClientDialog } from "@/components/add-client-dialog"
+import { AppShell } from "@/components/app-shell"
 import { connection } from "next/server"
 
 export const instant = false
@@ -42,7 +43,8 @@ export default async function AdminPage({
     .order("created_at", { ascending: false })
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
+    <AppShell>
+      <div className="px-4 lg:px-6">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -109,6 +111,7 @@ export default async function AdminPage({
           </Table>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </AppShell>
   )
 }
