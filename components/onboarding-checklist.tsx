@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import {
   ArrowRightCircleIcon,
@@ -92,9 +93,11 @@ export function OnboardingChecklist({
 }) {
   const [checkedTasks, setCheckedTasks] = useState<Record<string, boolean>>({})
 
+  // Opens the onboarding questionnaire inside the portal. The page also reads the signed-in
+  // client's account, so the location here is a fallback for older accounts.
   const onboardingUrl = locationId
-    ? `https://www.kickbord.com/onboarding?location=${encodeURIComponent(locationId)}`
-    : "https://www.kickbord.com/onboarding"
+    ? `/onboarding?location=${encodeURIComponent(locationId)}`
+    : "/onboarding"
 
   const toggleTask = (sectionId: string, task: string, checked: boolean) => {
     setCheckedTasks((prev) => ({ ...prev, [`${sectionId}:${task}`]: checked }))
@@ -154,14 +157,12 @@ export function OnboardingChecklist({
                         className="font-normal"
                       >
                         {task.link === "onboarding" ? (
-                          <a
+                          <Link
                             href={onboardingUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className="underline underline-offset-3 hover:text-foreground"
                           >
                             {task.label}
-                          </a>
+                          </Link>
                         ) : (
                           task.label
                         )}
